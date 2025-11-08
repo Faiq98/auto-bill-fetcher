@@ -67,13 +67,13 @@ public class WebAutomation {
 
             Instant start = Instant.now();
             wait.until(ExpectedConditions.elementToBeClickable(By.id("btn_login"))).click();
-            Instant end = Instant.now();
-            Duration duration = Duration.between(start, end);
-            System.out.println("Login took: " + duration.getSeconds() + " seconds and " + duration.toMillisPart() + " milliseconds");
 
             // Wait until the "Hello" span is visible
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='bb_custom_3']//div[@class='hello-text']/span[normalize-space()='Hello']")));
             System.out.println("✅ Login successful, 'Hello' message found.");
+            Instant end = Instant.now();
+            Duration duration = Duration.between(start, end);
+            System.out.println("Login took: " + duration.getSeconds() + " seconds and " + duration.toMillisPart() + " milliseconds");
 
             driver.findElement(By.xpath("//span[text()='Bills']")).click();
             selectDatePicker("start_date", wait, driver);
