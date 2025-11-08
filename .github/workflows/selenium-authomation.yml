@@ -38,7 +38,7 @@ jobs:
       - name: Build and run Spring Boot app
         run: |
           ./mvnw clean package
-          java -jar target/bills-automation-0.0.1-SNAPSHOT.jar
+          java -jar target/bills-0.0.1-SNAPSHOT.jar
         env:
           APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
           APP_DOWNLOAD_URL: ${{ secrets.APP_DOWNLOAD_URL }}
