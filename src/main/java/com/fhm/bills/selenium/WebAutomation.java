@@ -16,8 +16,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,7 +64,12 @@ public class WebAutomation {
 
             driver.findElement(By.name("username")).sendKeys(AesUtil.decrypt(appProperties.getUsername(), appProperties.getKey()));
             driver.findElement(By.name("password")).sendKeys(AesUtil.decrypt(appProperties.getPassword(), appProperties.getKey()));
+
+            Instant start = Instant.now();
             wait.until(ExpectedConditions.elementToBeClickable(By.id("btn_login"))).click();
+            Instant end = Instant.now();
+            Duration duration = Duration.between(start, end);
+            System.out.println("Login took: " + duration.getSeconds() + " seconds and " + duration.toMillisPart() + " milliseconds");
 
             // Wait until the "Hello" span is visible
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='bb_custom_3']//div[@class='hello-text']/span[normalize-space()='Hello']")));
@@ -84,10 +89,10 @@ public class WebAutomation {
             Path downloadedFile = Paths.get(downloadPath, "pdf");
             waitForFileDownload(downloadedFile, 60);  // Wait up to 60 seconds for the download
 
-            String month = LocalDate.now().getMonth().toString();
-            Path renameDownloadedFile = Paths.get(downloadPath, "BILL_" + month + ".pdf");
+            String previousMonthDate = LocalDate.now().minusMonths(1).getMonth().toString();
+            Path renameDownloadedFile = Paths.get(downloadPath, "BILL_" + previousMonthDate + ".pdf");
             renameFile(downloadPath, downloadedFile, renameDownloadedFile);
-            sendEmail(renameDownloadedFile, month);
+            sendEmail(renameDownloadedFile, previousMonthDate);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
