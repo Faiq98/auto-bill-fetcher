@@ -7,11 +7,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.Console;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -60,6 +57,8 @@ public class WebAutomation {
 
             driver.findElement(By.name("username")).sendKeys(AesUtil.decrypt(appProperties.getUsername(), appProperties.getKey()));
             driver.findElement(By.name("password")).sendKeys(AesUtil.decrypt(appProperties.getPassword(), appProperties.getKey()));
+            System.out.println(appProperties.getUsername());
+
             driver.findElement(By.id("btn_login")).click();
             // Wait until the "Hello" span is visible
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='bb_custom_3']//div[@class='hello-text']/span[normalize-space()='Hello']")));
