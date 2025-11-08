@@ -49,6 +49,9 @@ public class WebAutomation {
         }
 
         ChromeDriver driver = new ChromeDriver(chromeOptions);
+        System.out.println("ChromeDriver version: " + driver.getCapabilities().getCapability("chrome"));
+        System.out.println("Chrome browser version: " + driver.getCapabilities().getBrowserVersion());
+
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1200));
 
         try {
