@@ -32,7 +32,7 @@ public class WebAutomation {
         System.out.println("Start the automation...");
 
         ChromeOptions chromeOptions = new ChromeOptions();
-        String downloadPath = System.getProperty("user.dir") + "\\download";
+        String downloadPath = Paths.get(System.getProperty("user.dir"), "download").toString();
         Map<String, Object> prefs = new HashMap<>();
         prefs.put("download.default_directory", downloadPath);
         prefs.put("plugins.always_open_pdf_externally", true);
@@ -60,8 +60,6 @@ public class WebAutomation {
 
             driver.findElement(By.name("username")).sendKeys(AesUtil.decrypt(appProperties.getUsername(), appProperties.getKey()));
             driver.findElement(By.name("password")).sendKeys(AesUtil.decrypt(appProperties.getPassword(), appProperties.getKey()));
-            System.out.println("Username is empty :" + driver.findElement(By.name("username")).getAttribute("value").isEmpty());
-            System.out.println("Password is empty :" + driver.findElement(By.name("password")).getAttribute("value").isEmpty());
             wait.until(ExpectedConditions.elementToBeClickable(By.id("btn_login"))).click();
 
             // Wait until the "Hello" span is visible
@@ -106,8 +104,6 @@ public class WebAutomation {
             if (Files.exists(downloadedFile)) {
                 Files.move(downloadedFile, renameDownloadedFile, StandardCopyOption.REPLACE_EXISTING);
                 System.out.println("File renamed successfully");
-                System.out.println("Download Path : "+ downloadPath);
-                System.out.println("Downloaded File : "+ renameDownloadedFile);
             } else {
                 System.err.println("Source file does not exist: " + downloadedFile);
             }
