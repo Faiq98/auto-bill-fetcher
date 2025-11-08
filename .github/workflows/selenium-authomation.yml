@@ -8,6 +8,13 @@ on:
 jobs:
   run-automation:
     runs-on: ubuntu-latest
+    env:
+      APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+      APP_DOWNLOAD_URL: ${{ secrets.APP_DOWNLOAD_URL }}
+      APP_USERNAME: ${{ secrets.APP_USERNAME }}
+      APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+      APP_HEADLESS: true
+      APP_KEY: ${{ secrets.APP_KEY }}
 
     steps:
       # Step 1: Checkout repository
@@ -45,13 +52,6 @@ jobs:
         run: |
           ./mvnw clean package
           java -jar target/bills-0.0.1-SNAPSHOT.jar
-        env:
-          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
-          APP_DOWNLOAD_URL: ${{ secrets.APP_DOWNLOAD_URL }}
-          APP_USERNAME: ${{ secrets.APP_USERNAME }}
-          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
-          APP_HEADLESS: true
-          APP_KEY: ${{ secrets.APP_KEY }}
 
       # Step 5: Upload downloaded PDFs as artifacts
       - name: Upload PDF artifact
