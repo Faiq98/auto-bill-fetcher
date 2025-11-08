@@ -17,18 +17,15 @@ jobs:
       APP_KEY: ${{ secrets.APP_KEY }}
 
     steps:
-      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: '17'
 
-      # Step 3: Cache Maven dependencies for faster builds
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -37,52 +34,25 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # Step 4: Install Google Chrome
-      - name: Install Google Chrome
-        run: |
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt install -y ./google-chrome-stable_current_amd64.deb
-
-      # Step 5: Determine Chrome version
-      - name: Get Chrome major version
-        id: chrome_version
-        run: echo "CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | cut -d '.' -f1)" >> $GITHUB_ENV
-
-      # Step 6: Cache ChromeDriver
-      - name: Cache ChromeDriver
-        uses: actions/cache@v3
-        id: chromedriver-cache
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v2
         with:
-          path: /usr/local/bin/chromedriver
-          key: chromedriver-${{ env.CHROME_VERSION }}
+          install-chromedriver: true
+          install-dependencies: true
 
-      # Step 7: Install ChromeDriver if not cached
-      - name: Install matching ChromeDriver
-        run: |
-          CHROME_MAJOR=$(google-chrome --version | awk '{print $3}' | cut -d '.' -f1)
-          CHROMEDRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR)
-          wget https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/
-
-      # Step 8a: Make Maven wrapper executable
       - name: Make mvnw executable
         run: chmod +x ./mvnw
 
-      # Step 8b: Build and run Spring Boot automation
       - name: Debug secrets
         run: |
           echo "APP_USERNAME=${APP_USERNAME:0:3}***"   # only show first 3 chars
           echo "APP_HEADLESS=${APP_HEADLESS}"
 
-      # Step 8c: Build and run Spring Boot automation
       - name: Build and run Spring Boot app
         run: |
           ./mvnw clean package
           java -jar target/bills-0.0.1-SNAPSHOT.jar
 
-      # Step 9: Upload downloaded PDFs as artifacts
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
         with:
