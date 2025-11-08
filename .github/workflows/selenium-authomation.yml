@@ -45,7 +45,8 @@ jobs:
 
       # Step 5: Upload downloaded PDFs as artifacts
       - name: Upload PDF artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bills-pdfs
           path: download/
+          retention-days: 7  # optional: keeps artifact for 7 days
