@@ -37,17 +37,32 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # Step 4a: Make Maven wrapper executable
+      # Step 4: Install Chrome
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      # Step 5: Cache ChromeDriver (optional, speeds up repeated runs)
+      - name: Cache ChromeDriver
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/bin/chromedriver
+          key: chromedriver-119  # update this if Chrome version changes
+
+      # Step 6: Install ChromeDriver
+      - name: Set up ChromeDriver
+        uses: browser-actions/setup-chromedriver@v1
+
+      # Step 7a: Make Maven wrapper executable
       - name: Make mvnw executable
         run: chmod +x ./mvnw
 
-      # Step 4b: Build and run Spring Boot automation
+      # Step 7b: Build and run Spring Boot automation
       - name: Debug secrets
         run: |
           echo "APP_USERNAME=${APP_USERNAME:0:3}***"   # only show first 3 chars
           echo "APP_HEADLESS=${APP_HEADLESS}"
 
-      # Step 4c: Build and run Spring Boot automation
+      # Step 7c: Build and run Spring Boot automation
       - name: Build and run Spring Boot app
         run: |
           ./mvnw clean package
