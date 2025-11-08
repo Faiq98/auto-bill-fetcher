@@ -57,7 +57,6 @@ public class WebAutomation {
 
             driver.findElement(By.name("username")).sendKeys(AesUtil.decrypt(appProperties.getUsername(), appProperties.getKey()));
             driver.findElement(By.name("password")).sendKeys(AesUtil.decrypt(appProperties.getPassword(), appProperties.getKey()));
-            System.out.println(appProperties.getUsername());
 
             driver.findElement(By.id("btn_login")).click();
             // Wait until the "Hello" span is visible
