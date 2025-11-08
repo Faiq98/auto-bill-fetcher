@@ -1,10 +1,15 @@
 package com.fhm.bills.selenium;
 
+import com.fhm.bills.config.AppProperties;
+import com.fhm.bills.util.AesUtil;
 import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.Console;
 import java.nio.file.Files;
@@ -17,12 +22,17 @@ import java.time.Month;
 import java.util.HashMap;
 import java.util.Map;
 
+@Service
 public class WebAutomation {
 
-    public static void runTask() throws InterruptedException {
+    private final AppProperties appProperties;
+
+    public WebAutomation(AppProperties appProperties) {
+        this.appProperties = appProperties;
+    }
+
+    public void runTask() throws InterruptedException {
         System.out.println("Start the automation...");
-        Console console = System.console();
-        String username = console.readLine("Username: ");
 
         ChromeOptions chromeOptions = new ChromeOptions();
         String downloadPath = System.getProperty("user.dir") + "\\download";
@@ -33,15 +43,24 @@ public class WebAutomation {
         prefs.put("safebrowsing.enabled", true);
         chromeOptions.setExperimentalOption("prefs", prefs);
 
+        // Headless settings
+        if (appProperties.isHeadless()) {
+            chromeOptions.addArguments("--headless=new");
+            chromeOptions.addArguments("--no-sandbox");
+            chromeOptions.addArguments("--disable-dev-shm-usage");
+            chromeOptions.addArguments("--window-size=1920,1080");
+        }
+
         ChromeDriver driver = new ChromeDriver(chromeOptions);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(1200));
 
         try {
-            driver.get("https://***");
+            driver.get(appProperties.getBaseUrl());
             driver.manage().window().maximize();
 
-            driver.findElement(By.name("username")).sendKeys(username);
-
+            driver.findElement(By.name("username")).sendKeys(AesUtil.decrypt(appProperties.getUsername(), appProperties.getKey()));
+            driver.findElement(By.name("password")).sendKeys(AesUtil.decrypt(appProperties.getPassword(), appProperties.getKey()));
+            driver.findElement(By.id("btn_login")).click();
             // Wait until the "Hello" span is visible
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@id='bb_custom_3']//div[@class='hello-text']/span[normalize-space()='Hello']")));
             System.out.println("✅ Login successful, 'Hello' message found.");
@@ -54,13 +73,15 @@ public class WebAutomation {
             System.out.println(downloadPath);
 
             //download pdf url
-            driver.get("https://***");
+            driver.get(appProperties.getDownloadUrl());
 
             // Wait for the file to download
             Path downloadedFile = Paths.get(downloadPath, "pdf");
             waitForFileDownload(downloadedFile, 60);  // Wait up to 60 seconds for the download
 
             renameFile(downloadPath, downloadedFile);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
             driver.quit();
         }
