@@ -60,6 +60,8 @@ public class WebAutomation {
 
             driver.findElement(By.name("username")).sendKeys(AesUtil.decrypt(appProperties.getUsername(), appProperties.getKey()));
             driver.findElement(By.name("password")).sendKeys(AesUtil.decrypt(appProperties.getPassword(), appProperties.getKey()));
+            System.out.println("Username is empty :" + driver.findElement(By.name("username")).getAttribute("value").isEmpty());
+            System.out.println("Password is empty :" + driver.findElement(By.name("password")).getAttribute("value").isEmpty());
             wait.until(ExpectedConditions.elementToBeClickable(By.id("btn_login"))).click();
 
             // Wait until the "Hello" span is visible
