@@ -57,10 +57,11 @@ jobs:
           key: chromedriver-${{ env.CHROME_VERSION }}
 
       # Step 7: Install ChromeDriver if not cached
-      - name: Install ChromeDriver
-        if: steps.chromedriver-cache.outputs.cache-hit != 'true'
+      - name: Install matching ChromeDriver
         run: |
-          wget https://chromedriver.storage.googleapis.com/${CHROME_VERSION}/chromedriver_linux64.zip
+          CHROME_MAJOR=$(google-chrome --version | awk '{print $3}' | cut -d '.' -f1)
+          CHROMEDRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR)
+          wget https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip
           unzip chromedriver_linux64.zip
           sudo mv chromedriver /usr/local/bin/
           sudo chmod +x /usr/local/bin/
