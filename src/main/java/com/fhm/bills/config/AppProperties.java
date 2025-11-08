@@ -16,4 +16,5 @@ public class AppProperties {
     private String password;
     private String key;
     private boolean headless;
+    private String mailTo;
 }

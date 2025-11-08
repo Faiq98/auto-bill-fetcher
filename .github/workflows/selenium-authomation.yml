@@ -41,10 +41,8 @@ jobs:
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
           APP_HEADLESS: true
           APP_KEY: ${{ secrets.APP_KEY }}
+          APP_MAIL_TO: ${{ secrets.APP_MAIL_TO }}
+          APP_MAIL: ${{ secrets.APP_MAIL }}
+          APP_MAIL_PASS: ${{ secrets.APP_MAIL_PASS }}
 
-      - name: Upload PDF artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bills-pdfs
-          path: download/
-          retention-days: 7  # optional: keeps artifact for 7 days
+

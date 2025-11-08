@@ -1,7 +1,9 @@
 package com.fhm.bills.selenium;
 
 import com.fhm.bills.config.AppProperties;
+import com.fhm.bills.service.EmailService;
 import com.fhm.bills.util.AesUtil;
+import jakarta.mail.MessagingException;
 import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -23,9 +25,11 @@ import java.util.Map;
 public class WebAutomation {
 
     private final AppProperties appProperties;
+    private final EmailService emailService;
 
-    public WebAutomation(AppProperties appProperties) {
+    public WebAutomation(AppProperties appProperties, EmailService emailService) {
         this.appProperties = appProperties;
+        this.emailService = emailService;
     }
 
     public void runTask() throws InterruptedException {
@@ -80,7 +84,10 @@ public class WebAutomation {
             Path downloadedFile = Paths.get(downloadPath, "pdf");
             waitForFileDownload(downloadedFile, 60);  // Wait up to 60 seconds for the download
 
-            renameFile(downloadPath, downloadedFile);
+            String month = LocalDate.now().getMonth().toString();
+            Path renameDownloadedFile = Paths.get(downloadPath, "BILL_" + month + ".pdf");
+            renameFile(downloadPath, downloadedFile, renameDownloadedFile);
+            sendEmail(renameDownloadedFile, month);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -88,17 +95,13 @@ public class WebAutomation {
         }
     }
 
-    public static void selectDatePicker(String dateId, WebDriverWait wait, ChromeDriver driver) {
+    public void selectDatePicker(String dateId, WebDriverWait wait, ChromeDriver driver) {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@id='" + dateId + "']/following-sibling::button"))).click();
         driver.findElement(By.xpath("//a[contains(@class, 'ui-datepicker-prev')]")).click();
         driver.findElement(By.xpath("//button[text()='Done']")).click();
     }
 
-    public static void renameFile(String downloadPath, Path downloadedFile) {
-        LocalDate today = LocalDate.now();
-        Month month = today.getMonth();
-        Path renameDownloadedFile = Paths.get(downloadPath, "BILL_" + month + ".pdf");
-
+    public void renameFile(String downloadPath, Path downloadedFile, Path renameDownloadedFile) {
         try {
             // Check if the source file exists before renaming
             if (Files.exists(downloadedFile)) {
@@ -112,7 +115,7 @@ public class WebAutomation {
         }
     }
 
-    public static void waitForFileDownload(Path filePath, long timeoutInSeconds) throws InterruptedException {
+    public void waitForFileDownload(Path filePath, long timeoutInSeconds) throws InterruptedException {
         long startTime = System.currentTimeMillis();
         while (!Files.exists(filePath)) {
             if (System.currentTimeMillis() - startTime > timeoutInSeconds * 1000) {
@@ -120,5 +123,14 @@ public class WebAutomation {
             }
             Thread.sleep(500); // Sleep for a short period before checking again
         }
+    }
+
+    public void sendEmail(Path renameDownloadedFile, String month) throws MessagingException {
+        emailService.sendEmailWithAttachment(
+                appProperties.getMailTo(),
+                "Your Monthly Bill",
+                "Attached is your bill for " + month,
+                renameDownloadedFile.toString()
+        );
     }
 }
