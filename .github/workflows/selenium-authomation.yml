@@ -37,38 +37,51 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # Step 4: Install Chrome
-      - name: Set up Chrome
-        uses: browser-actions/setup-chrome@v1
+      # Step 4: Install Google Chrome
+      - name: Install Google Chrome
+        run: |
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt install -y ./google-chrome-stable_current_amd64.deb
 
-      # Step 5: Install ChromeDriver
-      - name: Set up ChromeDriver
-        uses: browser-actions/setup-chromedriver@v1
+      # Step 5: Determine Chrome version
+      - name: Get Chrome major version
+        id: chrome_version
+        run: echo "CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | cut -d '.' -f1)" >> $GITHUB_ENV
 
-      # Step 6: Cache ChromeDriver (optional, speeds up repeated runs)
+      # Step 6: Cache ChromeDriver
       - name: Cache ChromeDriver
         uses: actions/cache@v3
+        id: chromedriver-cache
         with:
           path: /usr/local/bin/chromedriver
-          key: chromedriver-119  # update this if Chrome version changes
+          key: chromedriver-${{ env.CHROME_VERSION }}
 
-      # Step 7a: Make Maven wrapper executable
+      # Step 7: Install ChromeDriver if not cached
+      - name: Install ChromeDriver
+        if: steps.chromedriver-cache.outputs.cache-hit != 'true'
+        run: |
+          wget https://chromedriver.storage.googleapis.com/${CHROME_VERSION}/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/local/bin/
+          sudo chmod +x /usr/local/bin/
+
+      # Step 8a: Make Maven wrapper executable
       - name: Make mvnw executable
         run: chmod +x ./mvnw
 
-      # Step 7b: Build and run Spring Boot automation
+      # Step 8b: Build and run Spring Boot automation
       - name: Debug secrets
         run: |
           echo "APP_USERNAME=${APP_USERNAME:0:3}***"   # only show first 3 chars
           echo "APP_HEADLESS=${APP_HEADLESS}"
 
-      # Step 7c: Build and run Spring Boot automation
+      # Step 8c: Build and run Spring Boot automation
       - name: Build and run Spring Boot app
         run: |
           ./mvnw clean package
           java -jar target/bills-0.0.1-SNAPSHOT.jar
 
-      # Step 5: Upload downloaded PDFs as artifacts
+      # Step 9: Upload downloaded PDFs as artifacts
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
         with:
