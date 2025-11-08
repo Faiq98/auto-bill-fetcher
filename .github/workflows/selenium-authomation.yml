@@ -41,16 +41,16 @@ jobs:
       - name: Set up Chrome
         uses: browser-actions/setup-chrome@v1
 
-      # Step 5: Cache ChromeDriver (optional, speeds up repeated runs)
+      # Step 5: Install ChromeDriver
+      - name: Set up ChromeDriver
+        uses: browser-actions/setup-chromedriver@v1
+
+      # Step 6: Cache ChromeDriver (optional, speeds up repeated runs)
       - name: Cache ChromeDriver
         uses: actions/cache@v3
         with:
           path: /usr/local/bin/chromedriver
           key: chromedriver-119  # update this if Chrome version changes
-
-      # Step 6: Install ChromeDriver
-      - name: Set up ChromeDriver
-        uses: browser-actions/setup-chromedriver@v1
 
       # Step 7a: Make Maven wrapper executable
       - name: Make mvnw executable
