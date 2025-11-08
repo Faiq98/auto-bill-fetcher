@@ -106,6 +106,8 @@ public class WebAutomation {
             if (Files.exists(downloadedFile)) {
                 Files.move(downloadedFile, renameDownloadedFile, StandardCopyOption.REPLACE_EXISTING);
                 System.out.println("File renamed successfully");
+                System.out.println("Download Path : "+ downloadPath);
+                System.out.println("Downloaded File : "+ renameDownloadedFile);
             } else {
                 System.err.println("Source file does not exist: " + downloadedFile);
             }
