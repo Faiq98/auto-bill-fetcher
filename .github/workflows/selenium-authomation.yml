@@ -30,7 +30,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # Step 4: Build and run Spring Boot automation
+      # Step 4a: Make Maven wrapper executable
+      - name: Make mvnw executable
+        run: chmod +x ./mvnw
+
+      # Step 4b: Build and run Spring Boot automation
       - name: Build and run Spring Boot app
         run: |
           ./mvnw clean package
