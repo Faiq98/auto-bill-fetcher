@@ -8,13 +8,6 @@ on:
 jobs:
   run-automation:
     runs-on: ubuntu-latest
-    env:
-      APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
-      APP_DOWNLOAD_URL: ${{ secrets.APP_DOWNLOAD_URL }}
-      APP_USERNAME: ${{ secrets.APP_USERNAME }}
-      APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
-      APP_HEADLESS: true
-      APP_KEY: ${{ secrets.APP_KEY }}
 
     steps:
       - name: Checkout repository
@@ -37,15 +30,17 @@ jobs:
       - name: Make mvnw executable
         run: chmod +x ./mvnw
 
-      - name: Debug secrets
-        run: |
-          echo "APP_USERNAME=${APP_USERNAME:0:3}***"   # only show first 3 chars
-          echo "APP_HEADLESS=${APP_HEADLESS}"
-
       - name: Build and run Spring Boot app
         run: |
           ./mvnw clean package
           java -jar target/bills-0.0.1-SNAPSHOT.jar
+        env:
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+          APP_DOWNLOAD_URL: ${{ secrets.APP_DOWNLOAD_URL }}
+          APP_USERNAME: ${{ secrets.APP_USERNAME }}
+          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+          APP_HEADLESS: true
+          APP_KEY: ${{ secrets.APP_KEY }}
 
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
